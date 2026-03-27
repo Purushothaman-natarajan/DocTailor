@@ -23,36 +23,83 @@ class RuleUpdater:
         
         return updated_content
     
-    def apply_branding_rules(self, content: str, branding_rules: Dict[str, Any]) -> str:
-        """Apply branding rules to content."""
-        if not branding_rules:
-            return content
+    def get_nested_value(self, data: Dict[str, Any], key: str) -> Any:
+        """Get a value from a nested dictionary using a dot-separated key.
         
-        updated_content = content
+        Args:
+            data: The dictionary to search
+            key: Dot-separated key (e.g., "user.name")
+            
+        Returns:
+            The value if found, None otherwise
+        """
+        keys = key.split('.')
+        value = data
+        for k in keys:
+            if isinstance(value, dict) and k in value:
+                value = value[k]
+            else:
+                return None
+        return value
+    
+    def _get_value_from_sources(self, placeholder: str, rules: Dict[str, Any]) -> Optional[Any]:
+        """Get a value for a placeholder from the branding or client sources.
         
-        # Replace branding placeholders
-        for key, value in branding_rules.items():
-            placeholder = "{" + key + "}"
-            updated_content = updated_content.replace(placeholder, str(value))
+        Args:
+            placeholder: The placeholder string (without braces)
+            rules: The rules dictionary containing 'branding' and/or 'client' keys
+            
+        Returns:
+            The value if found in either branding or client (using dot notation), None otherwise
+        """
+        # Check if the placeholder specifies a source (branding or client)
+        if '.' in placeholder:
+            parts = placeholder.split('.', 1)  # Split into [source, rest]
+            source = parts[0]
+            rest = parts[1]
+            if source in ['branding', 'client'] and source in rules:
+                return self.get_nested_value(rules[source], rest)
+            # If the source is not branding/client or not in rules, fall through to search both
         
-        return updated_content
+        # Try to find in branding first, then client
+        if 'branding' in rules:
+            value = self.get_nested_value(rules['branding'], placeholder)
+            if value is not None:
+                return value
+        if 'client' in rules:
+            value = self.get_nested_value(rules['client'], placeholder)
+            if value is not None:
+                return value
+        return None
     
     def apply_rules(self, content: str, rules: Dict[str, Any]) -> str:
-        """Apply all rules to content."""
-        updated_content = content
+        """Apply all rules to content.
         
-        # Apply terminology rules first
+        Order of operations:
+        1. Apply terminology rules (global string replacements)
+        2. Replace placeholders using data from branding and client sections
+        
+        Args:
+            content: The template content
+            rules: Dictionary containing 'branding', 'terminology', and/or 'client' keys
+            
+        Returns:
+            Updated content with rules applied
+        """
+        # Step 1: Apply terminology rules (if present)
         if "terminology" in rules:
-            updated_content = self.apply_terminology_rules(updated_content, rules["terminology"])
+            content = self.apply_terminology_rules(content, rules["terminology"])
         
-        # Apply branding rules
-        if "branding" in rules:
-            updated_content = self.apply_branding_rules(updated_content, rules["branding"])
+        # Step 2: Extract and replace placeholders
+        # We need to get the placeholders from the content after terminology rules
+        from engine.parser import TemplateParser
+        parser = TemplateParser()
+        placeholders = parser.extract_placeholders(content)
         
-        # Apply client-specific rules (direct value replacements)
-        if "client" in rules:
-            for key, value in rules["client"].items():
-                placeholder = "{" + key + "}"
-                updated_content = updated_content.replace(placeholder, str(value))
+        # Replace each placeholder with its value from the sources
+        for placeholder in placeholders:
+            value = self._get_value_from_sources(placeholder, rules)
+            if value is not None:
+                content = content.replace("{" + placeholder + "}", str(value))
         
-        return updated_content
+        return content

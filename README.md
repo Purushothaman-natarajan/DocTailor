@@ -13,7 +13,7 @@ It is designed for:
 - ✏️ **Template-Based Editing** — Maintain master templates and derive client versions easily.
 - 🔄 **Smart Update Rules** — Apply consistent formatting, terminology, and branding.
 - 🤖 **LLM Integration (Optional)** — Use any LLM (ChatGPT, Claude, local models) to auto-refine content.
-- 🏗️ **Pluggable Architecture** — Add new processors (e.g., latex, markdown, docx).
+- 🏗️ **Pluggable Architecture** — Add new processors (e.g., latex, docx, pdf).
 - 🗂️ **Versioned Template Management** — Track changes across multiple client documents.
 - ⚡ **Command-Line Assistant** — Generate docs with a single command.
 

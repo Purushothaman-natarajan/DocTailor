@@ -104,6 +104,45 @@ class AnthropicAdapter(LLMAdapter):
             logger.error(f"Error enhancing content with Anthropic: {e}")
             return content
 
+class GeminiAdapter(LLMAdapter):
+    """Google Gemini LLM adapter."""
+    
+    def __init__(self, api_key: Optional[str] = None, model: str = "gemini-pro"):
+        super().__init__(api_key, model)
+        if not self.api_key:
+            self.api_key = os.getenv("GOOGLE_API_KEY")
+        if not self.api_key:
+            logger.warning("Google API key not found. LLM enhancement will be skipped.")
+    
+    def enhance_content(self, content: str, instructions: str = "") -> str:
+        """Enhance content using Google Gemini API."""
+        if not self.api_key:
+            logger.warning("Google API key not available. Returning original content.")
+            return content
+        
+        try:
+            import google.generativeai as genai
+            genai.configure(api_key=self.api_key)
+            
+            # Set up the model
+            model = genai.GenerativeModel(self.model)
+            
+            prompt = f"""
+            {instructions}
+            
+            Content to enhance:
+            {content}
+            
+            Enhanced content:
+            """
+            
+            response = model.generate_content(prompt)
+            enhanced_content = response.text.strip()
+            return enhanced_content
+        except Exception as e:
+            logger.error(f"Error enhancing content with Gemini: {e}")
+            return content
+
 def get_llm_adapter(provider: str, api_key: Optional[str] = None, model: Optional[str] = None) -> LLMAdapter:
     """Factory function to get LLM adapter instance."""
     provider = provider.lower()
@@ -116,6 +155,10 @@ def get_llm_adapter(provider: str, api_key: Optional[str] = None, model: Optiona
         # Default model for Anthropic
         model = model or "claude-2"
         return AnthropicAdapter(api_key=api_key, model=model)
+    elif provider == "google" or provider.startswith("gemini"):
+        # Default model for Gemini
+        model = model or "gemini-pro"
+        return GeminiAdapter(api_key=api_key, model=model)
     else:
         logger.warning(f"Unknown LLM provider: {provider}. Returning a dummy adapter that does nothing.")
         # Return a dummy adapter that just returns the content

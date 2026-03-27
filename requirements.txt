@@ -10,3 +10,6 @@ google-generativeai>=0.3.0
 
 # For .env file handling
 python-dotenv>=1.0.0
+
+# For PDF processing
+reportlab>=3.6.0

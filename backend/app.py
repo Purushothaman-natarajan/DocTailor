@@ -10,7 +10,7 @@ import json
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from engine.renderer import TemplateRenderer
 
-app = Flask(__name__, static_folder='../static', template_folder='../web_templates')
+app = Flask(__name__, static_folder='../frontend', template_folder='../frontend')
 
 # Initialize renderer
 renderer = TemplateRenderer()

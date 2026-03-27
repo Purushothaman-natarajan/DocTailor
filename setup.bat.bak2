@@ -100,19 +100,17 @@ if "%choice%"=="1" (
     echo [LAUNCH] Starting DocTailor Web Interface...
     echo Access the application at http://localhost:5000
     echo.
-    call python backend\app.py
-    goto :eof
+    call python backend/app.py
 ) else if "%choice%"=="2" (
     echo.
     echo [LAUNCH] DocTailor CLI Tool - Examples:
     echo   python generate.py --list-templates
     echo   python generate.py --list-clients
-    echo   python generate.py --template document_templates\base.md --client clientA
+    echo   python generate.py --template document_templates/base.md --client clientA
     echo.
     echo [LAUNCH] Entering interactive CLI mode (type 'exit' to return to menu):
     echo.
     cmd /k
-    goto :eof
 ) else if "%choice%"=="3" (
     echo.
     echo [EXIT] Goodbye!
