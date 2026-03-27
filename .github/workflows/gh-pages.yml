@@ -20,7 +20,7 @@ jobs:
 
       - name: Install Jekyll and Plugins
         run: |
-          gem install jekyll jekyll-seo-tag
+          gem install jekyll jekyll-seo-tag jekyll-sitemap
 
       - name: Build Jekyll Site
         run: |
@@ -31,10 +31,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./_site
-          # If you are deploying to a branch named gh-pages, use:
-          # publish_branch: gh-pages
-          # But note: the repository settings must be set to deploy from the gh-pages branch.
-          # Alternatively, if you are using the docs folder on main, you would not use this action.
-          # Since we are building to _site and deploying to gh-pages branch, we set:
           publish_branch: gh-pages
           force_orphan: true
