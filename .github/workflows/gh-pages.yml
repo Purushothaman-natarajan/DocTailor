@@ -1,0 +1,40 @@
+name: GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # Set a branch to deploy
+  pull_request:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1' # Not needed with a .ruby-version file
+          bundler-cache: true
+
+      - name: Install Jekyll and Plugins
+        run: |
+          gem install jekyll jekyll-seo-tag
+
+      - name: Build Jekyll Site
+        run: |
+          jekyll build -s docs -d _site
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
+          # If you are deploying to a branch named gh-pages, use:
+          # publish_branch: gh-pages
+          # But note: the repository settings must be set to deploy from the gh-pages branch.
+          # Alternatively, if you are using the docs folder on main, you would not use this action.
+          # Since we are building to _site and deploying to gh-pages branch, we set:
+          publish_branch: gh-pages
+          force_orphan: true

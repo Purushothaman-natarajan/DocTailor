@@ -1,0 +1,7 @@
+title: DocTailor - Intelligent Document Customization Toolkit
+description: A lightweight framework for creating, updating, and customizing document templates using structured rules and LLMs.
+url: https://purushothaman-natarajan.github.io
+baseurl: /DocTailor
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
